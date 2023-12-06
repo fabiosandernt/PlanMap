@@ -1,0 +1,93 @@
+﻿@model IEnumerable<PlanMap.Models.Plant>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Lat)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Long)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Lat)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Long)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<script src="~/lib/leaflet/leaflet.js"></script>
+<script src="~/lib/leaflet/leaflet.min.js"></script>
+
+<div id="map" style="width: 100%; height: 400px;"></div>
+
+<button id="getLocation">Get Current Location</button>
+<script>
+
+    var map = L.map('map').setView([-22.9035, -43.2096], 13);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var jsModel = @Html.Raw(Json.Serialize(Model));
+
+    // Adicionar um ouvinte de evento para o botão
+    document.getElementById('getLocation').onclick = function () {
+        // Verificar se o navegador suporta a geolocalização
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var lat = position.coords.latitude;
+                var lon = position.coords.longitude;
+
+                // Adicionar um marcador no mapa
+                var marker = L.marker([lat, lon]).addTo(map);
+                marker.bindPopup('Your Location').openPopup();
+
+                // Atualizar a exibição do mapa com a nova posição
+                map.setView([lat, lon], 13);
+            }, function (error) {
+                console.error('Error getting location:', error);
+            });
+        } else {
+            alert('Geolocation is not supported by this browser.');
+        }
+    };
+
+    // for (i in jsModel) {
+    //     var item = jsModel[i];
+    //     L.marker([item.lat, item.long]).addTo(map)
+    //         .bindPopup(item.description)       
+    //         .openPopup();
+    // }
+
+</script>
