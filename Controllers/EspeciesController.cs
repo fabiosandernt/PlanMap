@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,22 +10,27 @@ using PlanMap.Models;
 
 namespace PlanMap.Controllers
 {
-    public class PlantsController : Controller
+    public class EspeciesController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public PlantsController(ApplicationDbContext context)
+        public EspeciesController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Plants
-        public async Task<IActionResult> Index()
+        public List<Especie> GetSpecies()
         {
-            return View(await _context.Plantios.ToListAsync());
+            return _context.Especies.ToList();
         }
 
-        // GET: Plants/Details/5
+        // GET: Especies
+        public async Task<IActionResult> Index()
+        {
+            return View(await _context.Especies.ToListAsync());
+        }
+
+        // GET: Especies/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -32,61 +38,56 @@ namespace PlanMap.Controllers
                 return NotFound();
             }
 
-            var plant = await _context.Plantios
+            var especie = await _context.Especies
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (plant == null)
+            if (especie == null)
             {
                 return NotFound();
             }
 
-            return View(plant);
-        }
-        public List<SelectListItem> GetSpeciesList()
-        {
-            var especies = _context.Especies.ToList();
-            var especiesList = especies.Select(e => new SelectListItem { Text = e.Name, Value = e.Id.ToString() }).ToList();
-            return especiesList;
+            return View(especie);
         }
 
-        //// GET: Plants/Create
+        //// GET: Especies/Create
         //public IActionResult Create()
-        //{          
+        //{
         //    return View();
         //}
+
         // GET: Plants/Create
         public IActionResult Create()
         {
-            // Crie uma instância de Plantio
+            // Crie um novo objeto Plantio
             var plant = new Plantio();
 
-            // Chame o método GetSpeciesList para obter a lista de espécies
-            var especiesList = GetSpeciesList();
+            // Chame o método GetSpeciesList da PlantsController para obter a lista de espécies
+            var especiesList = GetSpecies();
 
             // Adicione a lista de espécies ao ViewBag
-            ViewBag.EspeciesList = especiesList;
+            ViewBag.EspeciesList = new SelectList(especiesList, "Value", "Text");
 
-            // Retorne a view com a instância de Plantio
+            // Retorne a View com o objeto Plantio
             return View(plant);
         }
 
-        // POST: Plants/Create
+
+        // POST: Especies/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Lat,Long,Description")] Plantio plant)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,CodigoEspecie")] Especie especie)
         {
             if (ModelState.IsValid)
             {
-                plant.DataPlantio = DateTime.Now;
-                _context.Add(plant);
+                _context.Add(especie);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(plant);
+            return View(especie);
         }
 
-        // GET: Plants/Edit/5
+        // GET: Especies/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -94,22 +95,22 @@ namespace PlanMap.Controllers
                 return NotFound();
             }
 
-            var plant = await _context.Plantios.FindAsync(id);
-            if (plant == null)
+            var especie = await _context.Especies.FindAsync(id);
+            if (especie == null)
             {
                 return NotFound();
             }
-            return View(plant);
+            return View(especie);
         }
 
-        // POST: Plants/Edit/5
+        // POST: Especies/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Lat,Long,Description")] Plantio plant)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,CodigoEspecie")] Especie especie)
         {
-            if (id != plant.Id)
+            if (id != especie.Id)
             {
                 return NotFound();
             }
@@ -118,12 +119,12 @@ namespace PlanMap.Controllers
             {
                 try
                 {
-                    _context.Update(plant);
+                    _context.Update(especie);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PlantExists(plant.Id))
+                    if (!EspecieExists(especie.Id))
                     {
                         return NotFound();
                     }
@@ -134,10 +135,10 @@ namespace PlanMap.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(plant);
+            return View(especie);
         }
 
-        // GET: Plants/Delete/5
+        // GET: Especies/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -145,34 +146,34 @@ namespace PlanMap.Controllers
                 return NotFound();
             }
 
-            var plant = await _context.Plantios
+            var especie = await _context.Especies
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (plant == null)
+            if (especie == null)
             {
                 return NotFound();
             }
 
-            return View(plant);
+            return View(especie);
         }
 
-        // POST: Plants/Delete/5
+        // POST: Especies/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var plant = await _context.Plantios.FindAsync(id);
-            if (plant != null)
+            var especie = await _context.Especies.FindAsync(id);
+            if (especie != null)
             {
-                _context.Plantios.Remove(plant);
+                _context.Especies.Remove(especie);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool PlantExists(int id)
+        private bool EspecieExists(int id)
         {
-            return _context.Plantios.Any(e => e.Id == id);
+            return _context.Especies.Any(e => e.Id == id);
         }
     }
 }

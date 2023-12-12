@@ -1,4 +1,4 @@
-﻿@model PlanMap.Models.Plant
+﻿@model PlanMap.Models.Plantio
 
 @{
     ViewData["Title"] = "Create";
@@ -27,6 +27,16 @@
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
+
+            <!-- Dropdown para selecionar uma espécie -->
+            <div class="form-group">
+                <label asp-for="EspecieId" class="control-label">Espécie</label>
+                <select asp-for="EspecieId" class="form-control" asp-items="ViewBag.EspeciesList">
+                    <option value="">Selecione uma espécie</option>
+                </select>
+                <span asp-validation-for="EspecieId" class="text-danger"></span>
+            </div>
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
